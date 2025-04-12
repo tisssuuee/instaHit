@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>InstaHits - Contact</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #fffde7;
+            font-family: 'Arial', sans-serif;
+            color: #333;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .navbar {
+            background-color: #fbc02d;
+        }
+        .navbar-brand img {
+            height: 40px;
+        }
+        .nav-link {
+            color: #333 !important;
+        }
+        .nav-link:hover {
+            color: #f57f17 !important;
+        }
+        .contact-container {
+            text-align: center;
+            max-width: 600px;
+        }
+        .contact-text {
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+        }
+        .signature {
+            font-family: 'Georgia', serif;
+            font-size: 1.4rem;
+            color: #f57f17;
+        }
+        .slideshow {
+            width: 100%;
+            max-width: 400px;
+            height: 400px;
+            overflow: hidden;
+            border-radius: 10px;
+            margin-top: 20px;
+            border: 3px solid #fbc02d;
+        }
+        .slideshow img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: none;
+        }
+        .slideshow img.active {
+            display: block;
+        }
+        footer {
+            background: #f57f17;
+            color: white;
+            padding: 20px 0;
+            text-align: center;
+        }
+        @media (min-width: 576px) {
+            .contact-text {
+                font-size: 1.4rem;
+            }
+            .signature {
+                font-size: 1.6rem;
+            }
+            .slideshow {
+                max-width: 500px;
+                height: 500px;
+            }
+        }
+        @media (min-width: 768px) {
+            .contact-text {
+                font-size: 1.6rem;
+            }
+            .slideshow {
+                max-width: 600px;
+                height: 600px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-lg">
+            <div class="container">
+                <a class="navbar-brand" href="/home.html">
+                    <img src="https://i.pinimg.com/736x/6b/82/80/6b828049f5942cd00702a9fd836fb627.jpg" alt="InstaHits Logo">
+                    InstaHits
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav ms-auto">
+                        <li class="nav-item">
+                            <a class="nav-link" href="/home.html">Home</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/index.html">Profile Viewer</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/about.html">About</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" href="/contact.html">Contact</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <div class="contact-container">
+            <p class="contact-text">Reach out to us anytime!</p>
+            <p class="signature">Yours truly, Tissue</p>
+            <div class="slideshow">
+                <img src="https://i.pinimg.com/736x/c0/66/6a/c0666ab744b3ee14e9d02611ab3a01c9.jpg" alt="Slide 1" class="active">
+                <img src="https://i.pinimg.com/736x/d7/51/5b/d7515b864f67a0b92f7b50eec9e01a56.jpg" alt="Slide 2">
+                <img src="https://i.pinimg.com/736x/40/7e/5a/407e5a77ccc61ec338ac79475535dbae.jpg" alt="Slide 3">
+                <img src="https://i.pinimg.com/736x/b5/7e/a2/b57ea27a8a99395a6ae844ca77d18f60.jpg" alt="Slide 4">
+                <img src="https://i.pinimg.com/736x/20/d6/8c/20d68c7eecc4dd007a7741cdc4eee97d.jpg" alt="Slide 5">
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>© 2025 InstaHits. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const images = document.querySelectorAll('.slideshow img');
+        let currentIndex = 0;
+
+        function showNextImage() {
+            images[currentIndex].classList.remove('active');
+            currentIndex = (currentIndex + 1) % images.length;
+            images[currentIndex].classList.add('active');
+        }
+
+        setInterval(showNextImage, 500); // Change image every 0.5 seconds
+    </script>
+</body>
+</html>

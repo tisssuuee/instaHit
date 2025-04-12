@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>InstaHits - About 🌙</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background-color: #333333;
+            font-family: 'Comic Neue', cursive;
+            color: #d3d3d3;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        main {
+            flex: 1;
+            background-image: url('https://i.pinimg.com/736x/45/e8/4d/45e84da133e46b9104a7435501f6818f.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .navbar {
+            background-color: #555555;
+        }
+        .navbar-brand img {
+            height: 40px;
+        }
+        .nav-link {
+            color: #ffffff !important;
+        }
+        .nav-link:hover {
+            color: #b0bec5 !important;
+        }
+        .poem-container {
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 15px;
+            padding: 20px 30px;
+            max-width: 600px;
+            text-align: center;
+            border: 2px solid #b0bec5;
+        }
+        .poem-title {
+            color: #ffffff;
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+            text-shadow: 0 2px 4px #ffccff;
+        }
+        .poem {
+            color: #ffffff;
+            font-size: 1.2rem;
+            line-height: 1.8;
+            text-shadow: 0 1px 3px #ffccff;
+        }
+        .poem-author {
+            color: #d3d3d3;
+            font-size: 1rem;
+            font-style: italic;
+            margin-top: 20px;
+            text-shadow: 0 1px 2px #ffccff;
+        }
+        footer {
+            background: #555555;
+            color: #ffffff;
+            padding: 20px 0;
+            text-align: center;
+        }
+        @media (min-width: 576px) {
+            .poem-container {
+                padding: 30px 40px;
+            }
+            .poem {
+                font-size: 1.4rem;
+            }
+            .poem-title {
+                font-size: 2rem;
+            }
+        }
+        @media (min-width: 768px) {
+            .poem-container {
+                padding: 40px 50px;
+                max-width: 700px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-lg">
+            <div class="container">
+                <a class="navbar-brand" href="/home.html">
+                    <img src="https://i.pinimg.com/736x/6b/82/80/6b828049f5942cd00702a9fd836fb627.jpg" alt="InstaHits Logo">
+                    InstaHits ✨
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav ms-auto">
+                        <li class="nav-item">
+                            <a class="nav-link" href="/home.html">Home 🏠</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/index.html">Profile Viewer 📸</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" href="/about.html">About 🌟</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/contact.html">Contact 💌</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <div class="poem-container">
+            <h4 class="poem-title">Fireflies in the Garden ✨🌟</h4>
+            <p class="poem">
+                Here come real stars to fill the upper skies, 🌌<br>
+                And here on earth come emulating flies, 🪰<br>
+                That though they never equal stars in size, ✨<br>
+                (And they were never really stars at heart) 💖<br>
+                Achieve at times a very star-like start. 🌟<br>
+                Only, of course, they can't sustain the part. 🕯️
+            </p>
+            <p class="poem-author">— A poem by Robert Frost 📖💖</p>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>© 2025 InstaHits. All rights reserved. 🌈</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

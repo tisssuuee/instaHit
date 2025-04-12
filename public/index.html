@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>InstaHits - Instagram Profile Viewer</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #fffde7;
+            font-family: 'Arial', sans-serif;
+            color: #333;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        main {
+            flex: 1;
+        }
+        .navbar {
+            background-color: #fbc02d;
+        }
+        .navbar-brand img {
+            height: 40px;
+        }
+        .nav-link {
+            color: #333 !important;
+        }
+        .nav-link:hover {
+            color: #f57f17 !important;
+        }
+        .hero-section {
+            text-align: center;
+            padding: 40px 15px;
+            background: linear-gradient(135deg, #fbc02d, #f57f17);
+            color: white;
+            border-radius: 10px;
+            margin: 15px 0;
+        }
+        .input-group {
+            max-width: 100%;
+            margin: 0 auto;
+        }
+        .profile-box {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin-top: 20px;
+        }
+        .profile-container img {
+            border-radius: 50%;
+            width: 120px;
+            height: 120px;
+            object-fit: cover;
+            border: 3px solid #fbc02d;
+            margin: 0 auto;
+        }
+        .profile-button a {
+            display: inline-block;
+            margin: 10px;
+        }
+        .loader-area {
+            text-align: center;
+            margin: 20px 0;
+        }
+        .stats-container {
+            margin-top: 20px;
+            text-align: center;
+        }
+        .stats-label {
+            font-weight: bold;
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+        }
+        .stats-value {
+            font-size: 1rem;
+            margin-bottom: 10px;
+        }
+        footer {
+            background: #f57f17;
+            color: white;
+            padding: 20px 0;
+            text-align: center;
+        }
+        .btn-primary {
+            background-color: #fbc02d;
+            border-color: #fbc02d;
+            color: #333;
+        }
+        .btn-primary:hover {
+            background-color: #f57f17;
+            border-color: #f57f17;
+            color: white;
+        }
+        .btn-danger {
+            background-color: #f57f17;
+            border-color: #f57f17;
+            color: white;
+        }
+        .btn-danger:hover {
+            background-color: #fbc02d;
+            border-color: #fbc02d;
+            color: #333;
+        }
+        /* Media Queries */
+        @media (min-width: 576px) {
+            .hero-section {
+                padding: 50px 20px;
+                border-radius: 12px;
+            }
+            .profile-box {
+                padding: 25px;
+            }
+            .profile-container img {
+                width: 150px;
+                height: 150px;
+            }
+            .stats-label {
+                font-size: 1rem;
+            }
+        }
+        @media (min-width: 768px) {
+            .hero-section {
+                padding: 60px 30px;
+                border-radius: 15px;
+            }
+            .input-group {
+                max-width: 700px;
+            }
+            .profile-box {
+                padding: 30px;
+            }
+            .profile-container img {
+                width: 180px;
+                height: 180px;
+            }
+            .stats-container {
+                max-width: 400px;
+                margin-left: auto;
+                margin-right: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-lg">
+            <div class="container">
+                <a class="navbar-brand" href="/">
+                    <img src="https://i.pinimg.com/736x/6b/82/80/6b828049f5942cd00702a9fd836fb627.jpg" alt="InstaHits Logo">
+                    InstaHits
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav ms-auto">
+                        <li class="nav-item">
+                            <a class="nav-link" href="/home.html">Home</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" href="/index.html">Profile Viewer</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/about.html">About</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/contact.html">Contact</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <div class="container">
+            <div class="hero-section">
+                <h1 class="display-5">InstaHits Profile Viewer</h1>
+                <p class="lead">Stalk your loved ones' profile with ease :D</p>
+                <div class="input-group mb-3">
+                    <span class="input-group-text">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-link" viewBox="0 0 16 16">
+                            <path d="M6.354 5.5H4a3 3 0 0 0 0 6h3a3 3 0 0 0 2.83-4H9c-.086 0-.17.01-.25.031A2 2 0 0 1 7 10.5H4a2 2 0 1 1 0-4h1.535c.218-.376.495-.714.82-1z"/>
+                            <path d="M9 5.5a3 3 0 0 0-2.83 4h1.098A2 2 0 0 1 9 6.5h3a2 2 0 1 1 0 4h-1.535a4.02 4.02 0 0 1-.82 1H12a3 3 0 1 0 0-6H9z"/>
+                        </svg>
+                    </span>
+                    <input type="text" class="form-control" id="profileLink" placeholder="Paste Instagram profile URL (e.g., https://www.instagram.com/username/)" required>
+                    <button class="btn btn-primary" type="button" id="pasteButton">Paste</button>
+                    <button class="btn btn-primary" type="button" id="searchButton">Search</button>
+                </div>
+            </div>
+
+            <div class="loader-area" id="loader-area" style="display: none;">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+            </div>
+
+            <div class="profile-box" id="result" style="display: none;">
+                <div class="text-center profile-container">
+                    <img id="profileImage" href="#" target="_blank" rel="noopener noreferrer nofollow">
+                    <div class="profile-button">
+                        <a id="viewButton" href="#" target="_blank" rel="noopener noreferrer nofollow">
+                            <button class="btn btn-danger btn-lg">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-eye" viewBox="0 0 16 16">
+                                    <path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8zM1.173 8a13.133 13.133 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13.133 13.133 0 0 1 14.828 8c-.058.087-.122.183-.195.288-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5c-2.12 0-3.879-1.168-5.168-2.457A13.134 13.134 0 0 1 1.172 8z"/>
+                                    <path d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5zM4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0z"/>
+                                </svg>
+                                View Profile
+                            </button>
+                        </a>
+                        <span class="d-block my-2">OR</span>
+                        <a id="downloadButton" href="#" rel="noopener noreferrer nofollow">
+                            <button class="btn btn-primary btn-lg">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-download" viewBox="0 0 16 16">
+                                    <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 1 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/>
+                                    <path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 0 0-.708.708l3 3z"/>
+                                </svg>
+                                Download Image
+                            </button>
+                        </a>
+                    </div>
+                </div>
+                <div class="mt-3 text-center">
+                    <h3 id="fullName">Loading...</h3>
+                    <p class="title fw-bold" id="username">@username</p>
+                    <p id="bio">Bio goes here...</p>
+                </div>
+                <div class="stats-container">
+                    <div class="stats-label">Followers !</div>
+                    <div class="stats-value" id="followers">0</div>
+                    <div class="stats-label">Private ?</div>
+                    <div class="stats-value" id="private">Unknown</div>
+                    <div class="stats-label">Verified ?</div>
+                    <div class="stats-value" id="verified">Unknown</div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>© 2025 InstaHits. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Paste button
+        document.getElementById('pasteButton').addEventListener('click', async () => {
+            try {
+                const linkInput = document.getElementById('profileLink');
+                linkInput.value = await navigator.clipboard.readText();
+            } catch (err) {
+                console.error('Clipboard error:', err);
+                alert('Unable to paste from clipboard.');
+            }
+        });
+
+        // Search button
+        document.getElementById('searchButton').addEventListener('click', async () => {
+            const linkInput = document.getElementById('profileLink').value.trim();
+            if (!linkInput.match(/^https:\/\/(www\.)?instagram\.com\/[a-zA-Z0-9._]+\/?$/)) {
+                alert('Please enter a valid Instagram profile URL (e.g., https://www.instagram.com/username/).');
+                return;
+            }
+
+            const loader = document.getElementById('loader-area');
+            const result = document.getElementById('result');
+            loader.style.display = 'block';
+            result.style.display = 'none';
+
+            try {
+                // Step 1: Fetch token
+                console.log('Fetching token...');
+                const tokenResponse = await fetch('/api/fetch-token');
+                const tokenData = await tokenResponse.json();
+                if (!tokenResponse.ok) {
+                    throw new Error(tokenData.error || 'Failed to fetch token');
+                }
+                const { token, cookies } = tokenData;
+                console.log('Token:', token);
+
+                // Step 2: Fetch profile
+                console.log('Fetching profile for:', linkInput);
+                const profileResponse = await fetch('/api/fetch-profile', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ url: linkInput, token, cookies })
+                });
+                const profileData = await profileResponse.json();
+                if (!profileResponse.ok) {
+                    throw new Error(profileData.error || 'Failed to fetch profile');
+                }
+
+                // Update UI
+                document.getElementById('profileImage').src = "https://i.pinimg.com/736x/d6/fe/93/d6fe93c164eecbf9857982aa7d309ab3.jpg";
+                document.getElementById('viewButton').href = profileData.viewUrl;
+                document.getElementById('downloadButton').href = profileData.downloadUrl;
+                document.getElementById('fullName').textContent = profileData.fullName;
+                document.getElementById('username').textContent = profileData.username;
+                document.getElementById('bio').textContent = profileData.bio;
+                document.getElementById('followers').textContent = profileData.followers;
+                document.getElementById('private').textContent = profileData.isPrivate;
+                document.getElementById('verified').textContent = profileData.isVerified;
+
+                result.style.display = 'block';
+            } catch (error) {
+                console.error('Error:', error);
+                alert(`Failed to fetch profile: ${error.message}. Please try again or check the URL.`);
+            } finally {
+                loader.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>
