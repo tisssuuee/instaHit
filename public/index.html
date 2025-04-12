@@ -275,15 +275,20 @@
             result.style.display = 'none';
 
             try {
+                let tokenResponse, tokenData;
                 // Step 1: Fetch token
-                console.log('Fetching token...');
-                const tokenResponse = await fetch('/api/fetch-token');
-                const tokenData = await tokenResponse.json();
-                if (!tokenResponse.ok) {
-                    throw new Error(tokenData.error || 'Failed to fetch token');
+                try {
+                    console.log('Fetching token...');
+                    tokenResponse = await fetch('/api/fetch-token');
+                    tokenData = await tokenResponse.json();
+                } catch (error) {
+                    console.error(error);
                 }
-                const { token, cookies } = tokenData;
-                console.log('Token:', token);
+                if (!tokenResponse.ok) {
+                        throw new Error(tokenData.error || 'Failed to fetch token');
+                    }
+                    const { token, cookies } = tokenData;
+                    console.log('Token:', token);
 
                 // Step 2: Fetch profile
                 console.log('Fetching profile for:', linkInput);
