@@ -1,9 +1,10 @@
 const express = require('express');
-const fetch = require('node-fetch').default; // Fix: Use .default for CommonJS
+const fetch = require('node-fetch').default;
 const jsdom = require('jsdom');
 const cookieParser = require('cookie-parser');
 const path = require('path');
-const puppeteer = require('puppeteer');
+const os = require('os');
+const puppeteer = require(process.env.ON_RENDER ? 'puppeteer-core' : 'puppeteer');
 const { JSDOM } = jsdom;
 
 const app = express();
@@ -123,13 +124,26 @@ app.get('/api/fetch-token', async (req, res) => {
             return res.json(tokenCache);
         }
 
+        const isMac = os.platform() === 'darwin';
         const launchOptions = {
-            args: ['--no-sandbox', '--disable-setuid-sandbox'],
+            args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage'],
             headless: 'new'
         };
+
         if (process.env.ON_RENDER) {
-            launchOptions.executablePath = '/usr/bin/chromium-browser';
+            launchOptions.executablePath = '/usr/bin/chromium';
+        } else if (isMac) {
+            launchOptions.executablePath = process.env.CHROMIUM_PATH || '/opt/homebrew/bin/chromium' || '/usr/local/bin/chromium';
+        } else {
+            launchOptions.executablePath = process.env.CHROMIUM_PATH || '/usr/bin/chromium-browser';
         }
+
+        // If not Render, let puppeteer handle Chromium locally
+        if (!process.env.ON_RENDER) {
+            delete launchOptions.executablePath; // Let puppeteer download/use default
+        }
+
+        console.log('Puppeteer launch options:', launchOptions);
         const browser = await puppeteer.launch(launchOptions);
         try {
             const page = await browser.newPage();

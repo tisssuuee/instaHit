@@ -103,7 +103,12 @@
             border-color: #fbc02d;
             color: #333;
         }
-        /* Media Queries */
+        .error-message {
+            color: #f57f17;
+            font-weight: bold;
+            margin-top: 10px;
+            display: none;
+        }
         @media (min-width: 576px) {
             .hero-section {
                 padding: 50px 20px;
@@ -190,6 +195,8 @@
                     <button class="btn btn-primary" type="button" id="pasteButton">Paste</button>
                     <button class="btn btn-primary" type="button" id="searchButton">Search</button>
                 </div>
+                <p class="error-message" id="errorMessage"></p>
+                <button class="btn btn-danger mt-2" id="retryButton" style="display: none;">Retry</button>
             </div>
 
             <div class="loader-area" id="loader-area" style="display: none;">
@@ -259,36 +266,35 @@
             }
         });
 
-        // Search button
-        document.getElementById('searchButton').addEventListener('click', async () => {
+        // Search function
+        const searchProfile = async () => {
             let linkInput = document.getElementById('profileLink').value.trim();
-
-            if (!linkInput.match(/^https:\/\/(www\.)?instagram\.com\/[a-zA-Z0-9._]+\/?$/)) {
-                    const trimmed = linkInput.trim();
-                    const cleanUrl = trimmed.split('?')[0].replace(/\/+$/, '');
-                    linkInput = cleanUrl + '/';
-            }
-
+            const errorMessage = document.getElementById('errorMessage');
+            const retryButton = document.getElementById('retryButton');
             const loader = document.getElementById('loader-area');
             const result = document.getElementById('result');
+
+            if (!linkInput.match(/^https:\/\/(www\.)?instagram\.com\/[a-zA-Z0-9._]+\/?$/)) {
+                const trimmed = linkInput.trim();
+                const cleanUrl = trimmed.split('?')[0].replace(/\/+$/, '');
+                linkInput = cleanUrl + '/';
+            }
+
             loader.style.display = 'block';
             result.style.display = 'none';
+            errorMessage.style.display = 'none';
+            retryButton.style.display = 'none';
 
             try {
-                let tokenResponse, tokenData;
                 // Step 1: Fetch token
-                try {
-                    console.log('Fetching token...');
-                    tokenResponse = await fetch('/api/fetch-token');
-                    tokenData = await tokenResponse.json();
-                } catch (error) {
-                    console.error(error);
-                }
+                console.log('Fetching token...');
+                const tokenResponse = await fetch('/api/fetch-token');
+                const tokenData = await tokenResponse.json();
                 if (!tokenResponse.ok) {
-                        throw new Error(tokenData.error || 'Failed to fetch token');
-                    }
-                    const { token, cookies } = tokenData;
-                    console.log('Token:', token);
+                    throw new Error(tokenData.error || 'Failed to fetch token');
+                }
+                const { token, cookies } = tokenData;
+                console.log('Token:', token);
 
                 // Step 2: Fetch profile
                 console.log('Fetching profile for:', linkInput);
@@ -316,11 +322,21 @@
                 result.style.display = 'block';
             } catch (error) {
                 console.error('Error:', error);
-                alert(`Failed to fetch profile: ${error.message}. Please try again or check the URL.`);
+                errorMessage.textContent = error.message.includes('Chrome') 
+                    ? 'Server issue, please try again later.' 
+                    : `Failed to fetch profile: ${error.message}.`;
+                errorMessage.style.display = 'block';
+                retryButton.style.display = 'block';
             } finally {
                 loader.style.display = 'none';
             }
-        });
+        };
+
+        // Search button
+        document.getElementById('searchButton').addEventListener('click', searchProfile);
+
+        // Retry button
+        document.getElementById('retryButton').addEventListener('click', searchProfile);
     </script>
 </body>
 </html>
