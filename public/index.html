@@ -261,10 +261,12 @@
 
         // Search button
         document.getElementById('searchButton').addEventListener('click', async () => {
-            const linkInput = document.getElementById('profileLink').value.trim();
+            let linkInput = document.getElementById('profileLink').value.trim();
+
             if (!linkInput.match(/^https:\/\/(www\.)?instagram\.com\/[a-zA-Z0-9._]+\/?$/)) {
-                alert('Please enter a valid Instagram profile URL (e.g., https://www.instagram.com/username/).');
-                return;
+                    const trimmed = linkInput.trim();
+                    const cleanUrl = trimmed.split('?')[0].replace(/\/+$/, '');
+                    linkInput = cleanUrl + '/';
             }
 
             const loader = document.getElementById('loader-area');
