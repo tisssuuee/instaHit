@@ -3,31 +3,33 @@ const fetch = require('node-fetch');
 const jsdom = require('jsdom');
 const cookieParser = require('cookie-parser');
 const path = require('path');
-const cors = require('cors');
 const { JSDOM } = jsdom;
 
 const app = express();
 const port = process.env.PORT || 3000;
 
-app.use(cors({ origin: 'https://instahit.onrender.com', credentials: true }));
+// Middleware
 app.use(express.json());
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-const userAgents = [
-    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-    'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
-];
-
+// Helper to fetch with cookie persistence
 const fetchWithCookies = async (url, options = {}, cookies = {}, retries = 3) => {
+    const userAgents = [
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36',
+        'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.5 Safari/605.1.15',
+        'Mozilla/5.0 (X11; Linux x86_64; rv:130.0) Gecko/20100101 Firefox/130.0'
+    ];
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 8000);
+    const timeoutId = setTimeout(() => controller.abort(), 10000);
     try {
         const headers = {
-            'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
+            'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
+            'accept-language': 'en-US,en;q=0.9',
+            'referer': 'https://indown.io/',
+            'origin': 'https://indown.io',
             'user-agent': userAgents[Math.floor(Math.random() * userAgents.length)],
-            ...options.headers
+            ...options.headers,
         };
         if (Object.keys(cookies).length) {
             headers['cookie'] = Object.entries(cookies).map(([k, v]) => `${k}=${v}`).join('; ');
@@ -40,10 +42,12 @@ const fetchWithCookies = async (url, options = {}, cookies = {}, retries = 3) =>
             const [name, value] = nameValue.split('=');
             newCookies[name] = value;
         });
+        console.log(`Fetch ${url}: Status ${response.status}, Cookies:`, newCookies);
         return { response, cookies: newCookies };
     } catch (error) {
-        if (retries > 0 && error.name !== 'AbortError') {
-            await new Promise(resolve => setTimeout(resolve, 1500));
+        if (retries > 0 && (error.message.includes('403') || error.message.includes('429'))) {
+            console.log(`Retrying ${url}, retries left: ${retries}, error: ${error.message}`);
+            await new Promise(resolve => setTimeout(resolve, 2000));
             return fetchWithCookies(url, options, cookies, retries - 1);
         }
         throw error.name === 'AbortError' ? new Error('Request timed out') : error;
@@ -52,51 +56,45 @@ const fetchWithCookies = async (url, options = {}, cookies = {}, retries = 3) =>
     }
 };
 
-const normalizeUrl = (url) => {
-    const cleanUrl = url.trim().split('?')[0].replace(/\/+$/, '');
-    return cleanUrl + '/';
-};
-
+// Helper to parse profile data
 const parseProfileData = (html) => {
     const dom = new JSDOM(html);
     const profileBox = dom.window.document.querySelector('.profile-box');
-    if (!profileBox) return null;
-    const images = profileBox.querySelectorAll('.profile-container img');
-    let originalImage = '';
-    images.forEach(img => {
-        const src = img.src;
-        if (src.includes('fbcdn.net') && (src.includes('profile_pic') || src.includes('2885-19') || src.includes('s150x150'))) {
-            originalImage = src;
-        }
-    });
-    if (!originalImage) {
-        const fallbackImg = profileBox.querySelector('.profile-container img.rounded-circle')?.src || '';
-        if (fallbackImg && !fallbackImg.includes('blurred-profile.jpg') && !fallbackImg.includes('default.jpg')) {
-            originalImage = fallbackImg;
-        }
+    if (!profileBox) {
+        return null;
     }
+    const originalImage = profileBox.querySelector('.profile-container img')?.src || '';
+    // Use proxied image URL
     const image = originalImage ? `/api/proxy-image?url=${encodeURIComponent(originalImage)}` : '/placeholder.jpg';
+    const viewUrl = profileBox.querySelector('.profile-button a[href*="instagram.f"]')?.href || '#';
     return {
         image,
-        viewUrl: image,
+        viewUrl,
         downloadUrl: originalImage ? `/api/proxy-image?url=${encodeURIComponent(originalImage)}&download=true` : '#',
         fullName: profileBox.querySelector('h3')?.textContent || 'Unknown',
         username: profileBox.querySelector('.title')?.textContent || '@unknown',
         bio: profileBox.querySelector('p:not(.title)')?.textContent || 'No bio available',
         followers: profileBox.querySelector('table tr:nth-child(1) td')?.textContent || '0',
         isPrivate: profileBox.querySelector('table tr:nth-child(2) td')?.textContent || 'Unknown',
-        isVerified: profileBox.querySelector('table tr:nth-child(3) td')?.textContent || 'Unknown'
+        isVerified: profileBox.querySelector('table tr:nth-child(3) td')?.textContent || 'Unknown',
     };
 };
 
+// API to proxy images
 app.get('/api/proxy-image', async (req, res) => {
     const { url, download } = req.query;
-    if (!url) return res.status(400).send('Image URL required');
+    if (!url) {
+        return res.status(400).send('Image URL required');
+    }
     try {
         const response = await fetch(decodeURIComponent(url), {
-            headers: { 'user-agent': userAgents[Math.floor(Math.random() * userAgents.length)] }
+            headers: {
+                'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+            },
         });
-        if (!response.ok) throw new Error(`Image fetch failed: ${response.status}`);
+        if (!response.ok) {
+            throw new Error(`Failed to fetch image: ${response.status}`);
+        }
         const contentType = response.headers.get('content-type') || 'image/jpeg';
         res.set('Content-Type', contentType);
         if (download === 'true') {
@@ -105,97 +103,135 @@ app.get('/api/proxy-image', async (req, res) => {
         const buffer = await response.buffer();
         res.send(buffer);
     } catch (error) {
+        console.error('Image proxy error:', error);
         res.status(500).send('Failed to fetch image');
     }
 });
 
+// API to fetch token
 app.get('/api/fetch-token', async (req, res) => {
-    console.log('Fetching token from indown.io');
+    console.log('Attempting to fetch token from indown.io');
     try {
         const { response, cookies } = await fetchWithCookies('https://indown.io/insta-dp-viewer');
+        const html = await response.text();
         if (!response.ok) {
-            const text = await response.text();
-            console.log('Token fetch failed:', response.status, text.slice(0, 200));
+            console.error('Token fetch response:', { status: response.status, body: html.substring(0, 500) });
             throw new Error(`Token fetch failed: ${response.status}`);
         }
-        const text = await response.text();
-        const dom = new JSDOM(text);
+        const dom = new JSDOM(html);
         const tokenInput = dom.window.document.querySelector('input[name="_token"]');
         if (!tokenInput) {
-            console.log('Token input not found:', text.slice(0, 200));
+            console.error('Token fetch HTML sample:', html.substring(0, 500));
             throw new Error('Token input not found');
         }
+        console.log('Token fetched successfully');
         res.json({ token: tokenInput.value, cookies });
     } catch (error) {
-        console.log('Token fetch error:', error.message);
+        console.error('Token fetch error:', error.message);
         res.status(500).json({ error: `Failed to fetch token: ${error.message}` });
     }
 });
 
+// API to fetch profile
 app.post('/api/fetch-profile', async (req, res) => {
-    let { url, token, cookies = {} } = req.body;
-    if (!url) return res.status(400).json({ error: 'URL required' });
-
-    url = normalizeUrl(url);
-    if (!url.match(/^https?:\/\/(www\.)?instagram\.com\/[a-zA-Z0-9._]+\/$/)) {
+    const { url, token, cookies = {} } = req.body;
+    if (!url || !url.match(/^https:\/\/(www\.)?instagram\.com\/[a-zA-Z0-9._]+\/?$/)) {
         return res.status(400).json({ error: 'Invalid Instagram URL' });
     }
-    if (!token) return res.status(400).json({ error: 'Token required' });
+    if (!token) {
+        return res.status(400).json({ error: 'Token required' });
+    }
 
-    try {
-        const formData = new URLSearchParams();
-        formData.append('referer', 'https://indown.io/insta-dp-viewer');
-        formData.append('locale', 'en');
-        formData.append('i', '2001:4860:7:405::a4');
-        formData.append('_token', token);
-        formData.append('link', url);
+    const maxRetries = 3;
+    let attempt = 0;
 
-        const postResponse = await fetchWithCookies('https://indown.io/download', {
-            method: 'POST',
-            headers: { 'content-type': 'application/x-www-form-urlencoded' },
-            body: formData
-        }, cookies);
+    while (attempt < maxRetries) {
+        try {
+            // Step 1: Submit URL
+            const formData = new URLSearchParams();
+            formData.append('referer', 'https://indown.io/insta-dp-viewer');
+            formData.append('locale', 'en');
+            formData.append('i', '2001:4860:7:405::a4');
+            formData.append('_token', token);
+            formData.append('link', url);
 
-        const contentType = postResponse.response.headers.get('content-type') || '';
-        const postText = await postResponse.response.text();
+            const postResponse = await fetchWithCookies('https://indown.io/download', {
+                method: 'POST',
+                headers: { 'content-type': 'application/x-www-form-urlencoded' },
+                body: formData,
+            }, cookies);
 
-        if (!contentType.includes('text/html')) {
-            throw new Error(`Unexpected content type: ${contentType}`);
-        }
-        if (!postResponse.response.ok) {
-            throw new Error(`POST failed: ${postResponse.response.status} - ${postText.slice(0, 200)}`);
-        }
+            const postHtml = await postResponse.response.text();
+            console.log('POST response status:', postResponse.response.status);
 
-        let profileData = parseProfileData(postText);
-        if (profileData) return res.json(profileData);
+            // Check if POST response contains profile data
+            let profileData = parseProfileData(postHtml);
+            if (profileData) {
+                console.log('Profile data found in POST response');
+                return res.json(profileData);
+            }
 
-        if (postResponse.response.status === 302) {
+            // Expect 302, but handle other cases
+            if (postResponse.response.status !== 302) {
+                console.error('POST response body:', postHtml.substring(0, 500));
+                if (postResponse.response.status === 429) {
+                    attempt++;
+                    console.log(`Rate limited, retrying (${attempt}/${maxRetries})...`);
+                    await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
+                    continue;
+                }
+                throw new Error(`POST failed: ${postResponse.response.status}`);
+            }
+
+            // Step 2: Fetch profile data
             const profileResponse = await fetchWithCookies('https://indown.io/insta-dp-viewer', {}, postResponse.cookies);
-            const profileContentType = profileResponse.response.headers.get('content-type') || '';
-            const profileText = await profileResponse.response.text();
+            const profileHtml = await profileResponse.response.text();
+            console.log('GET response status:', profileResponse.response.status);
 
-            if (!profileContentType.includes('text/html')) {
-                throw new Error(`Unexpected profile content type: ${profileContentType}`);
-            }
             if (!profileResponse.response.ok) {
-                throw new Error(`GET failed: ${profileResponse.response.status} - ${profileText.slice(0, 200)}`);
+                console.error('GET response body:', profileHtml.substring(0, 500));
+                throw new Error(`Profile fetch failed: ${profileResponse.response.status}`);
             }
 
-            profileData = parseProfileData(profileText);
-            if (!profileData) throw new Error('No profile data found');
+            profileData = parseProfileData(profileHtml);
+            if (!profileData) {
+                console.error('Profile HTML sample:', profileHtml.substring(0, 500));
+                throw new Error('Profile data not found');
+            }
+
             res.json(profileData);
-        } else {
-            throw new Error('No profile data in response');
+            return;
+        } catch (error) {
+            console.error('Attempt', attempt + 1, 'error:', error);
+            if (attempt + 1 === maxRetries) {
+                res.status(500).json({ error: error.message });
+            }
+            attempt++;
+            await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
         }
-    } catch (error) {
-        res.status(500).json({ error: `Failed to fetch profile: ${error.message}` });
     }
 });
 
-app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'public', 'home.html')));
-app.get('/home.html', (req, res) => res.sendFile(path.join(__dirname, 'public', 'home.html')));
-app.get('/index.html', (req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
-app.get('/about.html', (req, res) => res.sendFile(path.join(__dirname, 'public', 'about.html')));
-app.get('/contact.html', (req, res) => res.sendFile(path.join(__dirname, 'public', 'contact.html')));
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'home.html'));
+});
 
-app.listen(port, () => console.log(`Server on port ${port}`));
+app.get('/home.html', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'home.html'));
+});
+
+app.get('/index.html', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+app.get('/about.html', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'about.html'));
+});
+
+app.get('/contact.html', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'contact.html'));
+});
+
+app.listen(port, () => {
+    console.log(`Server running on port ${port}`);
+});
