@@ -3,10 +3,3 @@ node_modules/
 
 # Environment variables
 .env
-
-# Logs
-*.log
-npm-debug.log
-
-# Temporary/OS files
-.DS_Store
